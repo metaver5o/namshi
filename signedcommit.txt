@@ -1,0 +1,11 @@
+clean.sh*
+contents.txt
+env.sh*
+namshi.sh*
+oauth.sh
+README.md
+REPOURL.txt
+signed.commit.txt
+signedcommit.txt
+teste/
+VERSION.txt
