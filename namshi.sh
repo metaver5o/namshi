@@ -1,22 +1,24 @@
 #!/bin/sh
+
 # challenge proposed at:
 # https://github.com/namshi/coding-challenges/blob/master/automation.md
 # Marco Matos - 09/27/16
 
-# exporting some variables
-
-# set GitHub username
-  export github_user="Dockerizer" ;
-# set user url
-  export github_url="https://github.com/"
-  export github_api="https://api.github.com"
-# set the file you want to check
-  export file="README.md"
-# set the GitHub OAuth key to avoid blocking requests
-  export gitkey="d09ea72dc181df13d02a85e678c63030048bbebd"
+export github_user="dockerizer"
+export file="test.txt"
+export gitkey="                               "
 
 # load curl with your credentials
-  alias curl="curl -H 'Authorization: token $gitkey'"
+alias curl="curl -H 'Authorization: token $gitkey'"
+
+# set user url
+export github_url="https://github.com/"
+export github_api="https://api.github.com/"
+
+# loading full block comment
+[ -z $BASH ] || shopt -s expand_aliases
+alias BEGINCOMMENT="if [ ]; then"
+alias ENDCOMMENT="fi"
 
 # export repositories URL
 REPOURL=`curl -s "https://api.github.com/users/\$github_user/repos?type=owner"| \
@@ -26,27 +28,27 @@ REPOURL=`curl -s "https://api.github.com/users/\$github_user/repos?type=owner"| 
 REPO_NUMBER=`echo $REPOURL | wc -w`
 
 # Repo Counter
-printf '%s\n'  "You own $REPO_NUMBER repositories which are"
-echo "##############################################################"
-printf '%s\n' "   "
-printf '%s\n' "$REPOURL"
-printf '%s\n' "   "
+printf '%s\n'  "Scanned $REPO_NUMBER repositories"
 
 # Search for given $FILE into repositories
-JSON=`curl -s $REPOURL/contents/ | grep -w "path" | tr -d "\," `
-#printf '%s\n' "$JSON"
-sed -ie 's/path/ /g' $JSON
+REPO_NAME=`curl -s https://api.github.com/users/\$github_user/repos | \
+                grep  -w name| grep -v labels | awk {'print $2'} | tr -d "\"" |  tr -d "\","`
 
-REPO_NAME=`printf '%s\n' "$JSON" | awk {'print $2'} | tr -d "\"" `
-printf '%s\n' "$REPO_NAME"
+echo "Searching after - $file :"
 
-# Block comment
-[ -z $BASH ] || shopt -s expand_aliases
-alias BEGINCOMMENT="if [ ]; then"
-alias ENDCOMMENT="fi"
+for x in `echo $REPOURL | tr " " "\n"` ;
+  do  echo "$x"   & \
+      curl -s $x/contents/ | grep -w "path" | awk {'print $2'} | tr -d "\"" | tr -d "\," ;
+  done
+
 
 BEGINCOMMENT
-# Exporting clone_url
+echo 001
+for x in `echo $REPO_NAME`; do
+  echo $x;
+done
+
+# Exporting $clone_url (.git)
 clone_url=`curl -s $REPOURL | grep -w "clone_url" | awk {'print $2'} | tr -d "\"" | tr -d "\," `
 
 # Showing repos candidates to cloning
@@ -58,12 +60,11 @@ printf '%s\n' "   "
 # Starting to clone repos in current dir
 printf '%s\n' "Cloning URLs"
 echo "##############################################################"
-for x in `echo $clone_url | uniq -u` ;
+for x in `echo $clone_url | grep $github_user | uniq -u` ;
   do git clone $x ;
 done
-printf '%s\n' "   "
 
-ENDCOMMENT
+printf '%s\n' "   "
 
 
 # backup files:                                                   # updates database to use locate command
@@ -94,3 +95,5 @@ ENDCOMMENT
 # PYTHON
 
 #export github-url / version-dir/  backup-dir/
+
+ENDCOMMENT
