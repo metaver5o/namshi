@@ -6,7 +6,7 @@
 
 export github_user="dockerizer"
 export file="test.txt"
-export gitkey="bf571c4fd307228749448e893d666ee26e3e56e7"
+export gitkey="d454db181a49ab25d5919c8150297a66e36660d2"
 
 # load curl with your credentials
 alias curl="curl -H 'Authorization: token $gitkey'"
@@ -34,13 +34,18 @@ printf '%s\n'  "Scanned $REPO_NUMBER repositories"
 REPO_NAME=`curl -s https://api.github.com/users/\$github_user/repos | \
                 grep  -w name| grep -v labels | awk {'print $2'} | tr -d "\"" |  tr -d "\","`
 
+
 echo "Searching after - $file :"
 
 for x in `echo $REPOURL | tr " " "\n"` ;
-  do  echo "$x"   & \
-      curl -s $x/contents/ | grep -w "path" | awk {'print $2'} | tr -d "\"" | tr -d "\," ;
-  done
+  do
+ echo "$x"
+ r="https://github.com/$github_user/"`echo $x | rev | cut -d/ -f1 | rev`".git"
+ curl -s $x/contents/ | grep -w "path" | grep $file > /dev/null && git clone $r
+done
 
+echo $REPO_NAME
+echo $REPOURL
 
 BEGINCOMMENT
 echo 001
@@ -48,8 +53,10 @@ for x in `echo $REPO_NAME`; do
   echo $x;
 done
 
+#found="$file"  #    curl -s $x/contents/ | grep -w "path" | grep $file | awk {'print $2'} | tr -d "\"" | tr -d "\," ;
+
 # Exporting $clone_url (.git)
-clone_url=`curl -s $REPOURL | grep -w "clone_url" | awk {'print $2'} | tr -d "\"" | tr -d "\," `
+clone_url=`curl -s $REPOURL | grep -w "git_url" | awk {'print $2'} | tr -d "\"" | tr -d "\," `
 
 # Showing repos candidates to cloning
 printf '%s\n' "Printing URLs to clone"
