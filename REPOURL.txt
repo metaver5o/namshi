@@ -1,1 +1,0 @@
-https://api.github.com/repos/dockerizer/autobuilds https://api.github.com/repos/dockerizer/namshi-exec
