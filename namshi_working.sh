@@ -4,12 +4,16 @@
 # https://github.com/namshi/coding-challenges/blob/master/automation.md
 # Marco Matos - 09/27/16
 
+# uncomment / run this routine after                      # warns maintainer to check results first
+# checking if changes were ok                             # cleans by deleting backup dirs and
+
+
 # First acting in remote side
 
 export github_user="mmatoscom"                            # Exporting github username
 export file="Dockerfile"                                  # Exporting filename to search (like NVERSION.txt)
 export new_filename="NDockerfile"                         # Updated filename (like VERSION.txt)
-export gitkey="UPDATE WITH YOUR OWN GITHUB API KEY"       # Exporting your GitHub API key
+export gitkey="UPDATE WITH YOUR OWN API KEY"              # Exporting your GitHub API key
                                                           # so you wont be blocked by
                                                           # too much requests
 
@@ -70,29 +74,13 @@ done
 #  mkdir -p $x/BKP/ &  cp -rfvaup $x $x/BKP/$file                  # backups them up. -p keeps permissions.
 #done
 
-# rename files with N prefix:                                       # exports  all file locations to VAR $x
-for x in `ls  . | grep -v sh`; do                                   # copies the original file with new name
-cp -rfv $x/$file $x/$new_filename                                   # keeps old file
-done
+# rename files with N prefix:                                      # exports  all file locations to VAR $x
+for x in `ls  . | grep -v sh`; do                                                # the -rfvaup flag will copy recursively
+cp -rfv $x/$file $x/$new_filename                                      # replaces copying into new file
+done                                                               # updating to a _new_ version file, which
 
-##############################
-
-#function git_stuff() {
-#    git add -A .
-#    git commit -a -m "updating filename for namshi.sh"
-#    git push origin master
-#}
-
-gitpush() {
-    git add -A .
-    git commit -m "$*"
-    git push
-}
-
-alias gp=gitpush
-
-for x in echo "$PWD/`ls | grep -v sh`";
-  do cd $x/ >> /dev/null && gp "updating $file to $new_filename";
-done
+#  git add -A
+#  git commit -a -m "updating filename for namshi.sh"
+#  git push origin master
 
 #echo "ok now you've made it :-)"

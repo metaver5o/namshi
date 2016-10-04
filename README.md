@@ -1,2 +1,0 @@
-# namshi
-challenge repo
